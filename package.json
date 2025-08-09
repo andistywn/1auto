@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i resources/css/app.css -o public/css/tailwind-output.css",
+    "build-only": "vite build",
+    "build": "npm run build:css && vite build",
+    "build:css:watch": "npx @tailwindcss/cli -i resources/css/app.css -o public/css/tailwind-output.css --watch",
+    "dev": "concurrently \"npm run build:css:watch\" \"vite\"",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@inertiajs/vue3": "^2.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/server-renderer": "^3.3.13",
+    "autoprefixer": "^10.4.16",
+    "axios": "^1.11.0",
+    "concurrently": "^9.0.1",
+    "laravel-vite-plugin": "^2.0.0",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^4.1.11",
+    "vite": "^7.0.4",
+    "vue": "^3.3.13"
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
+    "@tailwindcss/cli": "^4.1.11",
+    "@tailwindcss/postcss": "^4.1.11",
+    "ant-design-vue": "^4.2.6",
+    "pinia": "^3.0.3"
+  }
+}
