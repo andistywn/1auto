@@ -1,0 +1,1111 @@
+
+================================================================================
+File: Auth\ConfirmPassword.vue
+Size: 1.95 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <div style="text-align: center; margin-bottom: 24px">
+                <LockOutlined style="font-size: 48px; color: #1890ff; margin-bottom: 16px" />
+                <h2>Confirm Password</h2>
+                <p style="color: #666">
+                    This is a secure area of the application. Please confirm your password before continuing.
+                </p>
+            </div>
+
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Password"
+                    name="password"
+                    :rules="[{ required: true, message: 'Please input your password!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                        placeholder="Password"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Confirm
+                    </a-button>
+                </a-form-item>
+            </a-form>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { LockOutlined } from '@ant-design/icons-vue';
+
+const form = useForm({
+    password: '',
+});
+
+const submit = (): void => {
+    form.post(route('password.confirm'), {
+        onFinish: () => form.reset(),
+    });
+};
+</script>
+
+
+================================================================================
+File: Auth\ForgotPassword.vue
+Size: 1.96 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <h2 style="text-align: center; margin-bottom: 24px">Forgot Password</h2>
+
+            <div v-if="status" style="margin-bottom: 16px">
+                <a-alert :message="status" type="success" show-icon />
+            </div>
+
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Email"
+                    name="email"
+                    :rules="[{ required: true, type: 'email', message: 'Please input a valid email!' }]"
+                >
+                    <a-input
+                        v-model:value="form.email"
+                        type="email"
+                        size="large"
+                        :prefix="h(MailOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Send Password Reset Link
+                    </a-button>
+                </a-form-item>
+
+                <div style="text-align: center">
+                    <Link :href="route('login')">Back to Login</Link>
+                </div>
+            </a-form>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue';
+import { useForm, Link } from '@inertiajs/vue3';
+import { MailOutlined } from '@ant-design/icons-vue';
+
+interface Props {
+    status?: string;
+}
+
+defineProps<Props>();
+
+const form = useForm({
+    email: '',
+});
+
+const submit = (): void => {
+    form.post(route('password.email'));
+};
+</script>
+
+
+================================================================================
+File: Auth\Login.vue
+Size: 2.47 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <h2 style="text-align: center; margin-bottom: 24px">Login</h2>
+
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Email"
+                    name="email"
+                    :rules="[{ required: true, message: 'Please input your email!' }]"
+                >
+                    <a-input
+                        v-model:value="form.email"
+                        type="email"
+                        size="large"
+                        :prefix="h(MailOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    label="Password"
+                    name="password"
+                    :rules="[{ required: true, message: 'Please input your password!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-checkbox v-model:checked="form.remember">Remember me</a-checkbox>
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Log in
+                    </a-button>
+                </a-form-item>
+
+                <div style="text-align: center">
+                    <Link :href="route('register')">Don't have an account? Register</Link>
+                </div>
+            </a-form>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue';
+import { useForm, Link } from '@inertiajs/vue3';
+import { MailOutlined, LockOutlined } from '@ant-design/icons-vue';
+import type { LoginForm } from '@/types/auth.js';
+
+const form = useForm<LoginForm>({
+    email: '',
+    password: '',
+    remember: false,
+});
+
+const submit = (): void => {
+    form.post(route('login'), {
+        onFinish: () => form.reset('password'),
+    });
+};
+</script>
+
+
+================================================================================
+File: Auth\Register.vue
+Size: 3.57 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <h2 style="text-align: center; margin-bottom: 24px">Register</h2>
+
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Name"
+                    name="name"
+                    :rules="[{ required: true, message: 'Please input your name!' }]"
+                >
+                    <a-input
+                        v-model:value="form.name"
+                        size="large"
+                        :prefix="h(UserOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    label="Email"
+                    name="email"
+                    :rules="[{ required: true, type: 'email', message: 'Please input a valid email!' }]"
+                >
+                    <a-input
+                        v-model:value="form.email"
+                        type="email"
+                        size="large"
+                        :prefix="h(MailOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    label="Password"
+                    name="password"
+                    :rules="[{ required: true, min: 8, message: 'Password must be at least 8 characters!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    label="Confirm Password"
+                    name="password_confirmation"
+                    :rules="[{ required: true, message: 'Please confirm your password!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password_confirmation"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-checkbox v-model:checked="form.terms">
+                        I agree to the terms and conditions
+                    </a-checkbox>
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Register
+                    </a-button>
+                </a-form-item>
+
+                <div style="text-align: center">
+                    <Link :href="route('login')">Already have an account? Login</Link>
+                </div>
+            </a-form>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue';
+import { useForm, Link } from '@inertiajs/vue3';
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons-vue';
+import type { RegisterForm } from '@/types/auth.js';
+
+const form = useForm<RegisterForm>({
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+    terms: false,
+});
+
+const submit = (): void => {
+    form.post(route('register'), {
+        onFinish: () => form.reset('password', 'password_confirmation'),
+    });
+};
+</script>
+
+
+================================================================================
+File: Auth\ResetPassword.vue
+Size: 2.8 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <h2 style="text-align: center; margin-bottom: 24px">Reset Password</h2>
+
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Email"
+                    name="email"
+                    :rules="[{ required: true, type: 'email', message: 'Please input a valid email!' }]"
+                >
+                    <a-input
+                        v-model:value="form.email"
+                        type="email"
+                        size="large"
+                        :prefix="h(MailOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    label="Password"
+                    name="password"
+                    :rules="[{ required: true, min: 8, message: 'Password must be at least 8 characters!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    label="Confirm Password"
+                    name="password_confirmation"
+                    :rules="[{ required: true, message: 'Please confirm your password!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password_confirmation"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Reset Password
+                    </a-button>
+                </a-form-item>
+            </a-form>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { MailOutlined, LockOutlined } from '@ant-design/icons-vue';
+
+interface Props {
+    token: string;
+    email: string;
+}
+
+const props = defineProps<Props>();
+
+const form = useForm({
+    token: props.token,
+    email: props.email,
+    password: '',
+    password_confirmation: '',
+});
+
+const submit = (): void => {
+    form.post(route('password.update'), {
+        onFinish: () => form.reset('password', 'password_confirmation'),
+    });
+};
+</script>
+
+
+================================================================================
+File: Auth\TwoFactorChallenge.vue
+Size: 3.2 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <div style="text-align: center; margin-bottom: 24px">
+                <LockOutlined style="font-size: 48px; color: #1890ff; margin-bottom: 16px" />
+                <h2>Two Factor Authentication</h2>
+                <p style="color: #666">
+                    {{ recovery ? 'Please confirm access to your account by entering one of your emergency recovery codes.' : 'Please confirm access to your account by entering the authentication code provided by your authenticator application.' }}
+                </p>
+            </div>
+
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    v-if="!recovery"
+                    label="Code"
+                    name="code"
+                    :rules="[{ required: true, message: 'Please input your authentication code!' }]"
+                >
+                    <a-input
+                        v-model:value="form.code"
+                        size="large"
+                        placeholder="Authentication code"
+                        autocomplete="one-time-code"
+                    />
+                </a-form-item>
+
+                <a-form-item
+                    v-else
+                    label="Recovery Code"
+                    name="recovery_code"
+                    :rules="[{ required: true, message: 'Please input your recovery code!' }]"
+                >
+                    <a-input
+                        v-model:value="form.recovery_code"
+                        size="large"
+                        placeholder="Recovery code"
+                        autocomplete="one-time-code"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Log in
+                    </a-button>
+                </a-form-item>
+
+                <div style="text-align: center">
+                    <button
+                        type="button"
+                        @click="toggleRecovery"
+                        style="border: none; background: none; color: #1890ff; cursor: pointer"
+                    >
+                        {{ recovery ? 'Use an authentication code' : 'Use a recovery code' }}
+                    </button>
+                </div>
+            </a-form>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { LockOutlined } from '@ant-design/icons-vue';
+
+const recovery = ref(false);
+
+const form = useForm({
+    code: '',
+    recovery_code: '',
+});
+
+const toggleRecovery = (): void => {
+    recovery.value = !recovery.value;
+    form.reset();
+};
+
+const submit = (): void => {
+    form.post(route('two-factor.login'));
+};
+</script>
+
+
+================================================================================
+File: Auth\VerifyEmail.vue
+Size: 2.12 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <div style="text-align: center">
+                <MailOutlined style="font-size: 48px; color: #1890ff; margin-bottom: 16px" />
+                <h2 style="margin-bottom: 16px">Verify Your Email</h2>
+                <p style="margin-bottom: 24px; color: #666">
+                    Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you?
+                </p>
+            </div>
+
+            <div v-if="verificationLinkSent" style="margin-bottom: 16px">
+                <a-alert
+                    message="A new verification link has been sent to your email address."
+                    type="success"
+                    show-icon
+                />
+            </div>
+
+            <a-form @finish="submit" layout="vertical">
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Resend Verification Email
+                    </a-button>
+                </a-form-item>
+            </a-form>
+
+            <div style="text-align: center; margin-top: 16px">
+                <Link :href="route('logout')" method="post" as="button" style="border: none; background: none; color: #1890ff; cursor: pointer">
+                    Log Out
+                </Link>
+            </div>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useForm, Link, usePage } from '@inertiajs/vue3';
+import { MailOutlined } from '@ant-design/icons-vue';
+
+const page = usePage();
+const verificationLinkSent = computed(() => page.props.status === 'verification-link-sent');
+
+const form = useForm({});
+
+const submit = (): void => {
+    form.post(route('verification.send'));
+};
+</script>
+
+
+================================================================================
+File: Dashboard.vue
+Size: 2.59 kB
+================================================================================
+
+<template>
+    <AppLayout>
+        <a-page-header
+            title="Dashboard"
+            sub-title="Welcome to your application"
+        />
+
+        <a-row :gutter="16" style="margin-top: 24px">
+            <a-col :span="6">
+                <a-card>
+                    <a-statistic
+                        title="Total Users"
+                        :value="stats.users"
+                        :prefix="h(UserOutlined)"
+                    />
+                </a-card>
+            </a-col>
+            <a-col :span="6">
+                <a-card>
+                    <a-statistic
+                        title="Active Sessions"
+                        :value="stats.sessions"
+                        :prefix="h(TeamOutlined)"
+                    />
+                </a-card>
+            </a-col>
+            <a-col :span="6">
+                <a-card>
+                    <a-statistic
+                        title="Total Teams"
+                        :value="stats.teams"
+                        :prefix="h(TeamOutlined)"
+                    />
+                </a-card>
+            </a-col>
+            <a-col :span="6">
+                <a-card>
+                    <a-statistic
+                        title="Growth"
+                        :value="11.28"
+                        :precision="2"
+                        suffix="%"
+                        :value-style="{ color: '#3f8600' }"
+                        :prefix="h(ArrowUpOutlined)"
+                    />
+                </a-card>
+            </a-col>
+        </a-row>
+
+        <a-card style="margin-top: 24px" title="Recent Activities">
+            <a-list :data-source="activities">
+                <template #renderItem="{ item }">
+                    <a-list-item>
+                        <a-list-item-meta
+                            :title="item.title"
+                            :description="item.description"
+                        />
+                        <div>{{ item.time }}</div>
+                    </a-list-item>
+                </template>
+            </a-list>
+        </a-card>
+    </AppLayout>
+</template>
+
+<script setup lang="ts">
+import { h } from 'vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import { UserOutlined, TeamOutlined, ArrowUpOutlined } from '@ant-design/icons-vue';
+import type { DashboardStats, Activity } from '@/types/dashboard.js';
+
+interface Props {
+    stats: DashboardStats;
+    activities: Activity[];
+}
+
+withDefaults(defineProps<Props>(), {
+    stats: () => ({
+        users: 0,
+        sessions: 0,
+        teams: 0
+    }),
+    activities: () => []
+});
+</script>
+
+
+================================================================================
+File: Home.vue
+Size: 248 B
+================================================================================
+
+<template>
+  <div style="padding: 24px; text-align: center;">
+    <h1>Welcome to Laravel + Vue 3 + TypeScript</h1>
+    <p>Your application is running successfully!</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Home page component
+</script>
+
+
+================================================================================
+File: Profile\Show.vue
+Size: 4.87 kB
+================================================================================
+
+<template>
+    <AppLayout>
+        <a-page-header
+            title="Profile"
+            sub-title="Manage your account settings"
+        />
+
+        <a-row :gutter="24" style="margin-top: 24px">
+            <a-col :span="8">
+                <a-card title="Profile Information">
+                    <a-form
+                        :model="profileForm"
+                        layout="vertical"
+                        @finish="updateProfile"
+                    >
+                        <a-form-item label="Name" required>
+                            <a-input v-model:value="profileForm.name" />
+                        </a-form-item>
+                        <a-form-item label="Email" required>
+                            <a-input v-model:value="profileForm.email" type="email" />
+                        </a-form-item>
+                        <a-form-item>
+                            <a-button type="primary" html-type="submit">
+                                Update Profile
+                            </a-button>
+                        </a-form-item>
+                    </a-form>
+                </a-card>
+
+                <a-card title="Update Password" style="margin-top: 24px">
+                    <a-form
+                        :model="passwordForm"
+                        layout="vertical"
+                        @finish="updatePassword"
+                    >
+                        <a-form-item label="Current Password" required>
+                            <a-input-password v-model:value="passwordForm.current_password" />
+                        </a-form-item>
+                        <a-form-item label="New Password" required>
+                            <a-input-password v-model:value="passwordForm.password" />
+                        </a-form-item>
+                        <a-form-item label="Confirm Password" required>
+                            <a-input-password v-model:value="passwordForm.password_confirmation" />
+                        </a-form-item>
+                        <a-form-item>
+                            <a-button type="primary" html-type="submit">
+                                Update Password
+                            </a-button>
+                        </a-form-item>
+                    </a-form>
+                </a-card>
+            </a-col>
+
+            <a-col :span="16">
+                <a-card title="Two Factor Authentication">
+                    <a-alert
+                        message="Two factor authentication is currently disabled"
+                        type="warning"
+                        show-icon
+                        style="margin-bottom: 16px"
+                    />
+                    <a-button type="primary">Enable Two Factor Authentication</a-button>
+                </a-card>
+
+                <a-card title="Browser Sessions" style="margin-top: 24px">
+                    <p>Manage and log out your active sessions on other browsers and devices.</p>
+                    <a-button type="default">Log Out Other Browser Sessions</a-button>
+                </a-card>
+
+                <a-card title="Delete Account" style="margin-top: 24px">
+                    <a-alert
+                        message="Once your account is deleted, all of its resources and data will be permanently deleted."
+                        type="error"
+                        show-icon
+                        style="margin-bottom: 16px"
+                    />
+                    <a-button type="primary" danger>Delete Account</a-button>
+                </a-card>
+            </a-col>
+        </a-row>
+    </AppLayout>
+</template>
+
+<script setup lang="ts">
+import { reactive } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import { message } from 'ant-design-vue';
+import type { ProfileUser } from '@/types/profile.js';
+
+interface Props {
+    user: ProfileUser;
+}
+
+const props = defineProps<Props>();
+
+const profileForm = reactive({
+    name: props.user.name,
+    email: props.user.email,
+});
+
+const passwordForm = reactive({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const updateProfile = (): void => {
+    const form = useForm(profileForm);
+    form.put(route('user-profile-information.update'), {
+        onSuccess: () => message.success('Profile updated successfully'),
+        onError: () => message.error('Failed to update profile'),
+    });
+};
+
+const updatePassword = (): void => {
+    const form = useForm(passwordForm);
+    form.put(route('user-password.update'), {
+        onSuccess: () => {
+            message.success('Password updated successfully');
+            passwordForm.current_password = '';
+            passwordForm.password = '';
+            passwordForm.password_confirmation = '';
+        },
+        onError: () => message.error('Failed to update password'),
+    });
+};
+</script>
+
+
+================================================================================
+File: Users\Index.vue
+Size: 5.99 kB
+================================================================================
+
+<template>
+    <AppLayout>
+        <a-page-header
+            title="Users"
+            sub-title="Manage system users"
+        >
+            <template #extra>
+                <a-button type="primary" @click="showCreateModal = true">
+                    <PlusOutlined /> Add User
+                </a-button>
+            </template>
+        </a-page-header>
+
+        <a-card style="margin-top: 24px">
+            <a-table
+                :columns="columns"
+                :data-source="users"
+                :loading="loading"
+                :pagination="pagination"
+                @change="handleTableChange"
+            >
+                <template #bodyCell="{ column, record }">
+                    <template v-if="column.key === 'action'">
+                        <a-space>
+                            <a-button type="link" @click="editUser(record)">
+                                <EditOutlined /> Edit
+                            </a-button>
+                            <a-popconfirm
+                                title="Are you sure delete this user?"
+                                @confirm="deleteUser(record.id)"
+                            >
+                                <a-button type="link" danger>
+                                    <DeleteOutlined /> Delete
+                                </a-button>
+                            </a-popconfirm>
+                        </a-space>
+                    </template>
+                </template>
+            </a-table>
+        </a-card>
+
+        <!-- Create/Edit Modal -->
+        <a-modal
+            v-model:open="showModal"
+            :title="editingUser ? 'Edit User' : 'Create User'"
+            @ok="handleSubmit"
+            @cancel="resetForm"
+        >
+            <a-form
+                :model="form"
+                layout="vertical"
+            >
+                <a-form-item label="Name" required>
+                    <a-input v-model:value="form.name" />
+                </a-form-item>
+                <a-form-item label="Email" required>
+                    <a-input v-model:value="form.email" type="email" />
+                </a-form-item>
+                <a-form-item label="Role">
+                    <a-select v-model:value="form.role">
+                        <a-select-option value="user">User</a-select-option>
+                        <a-select-option value="admin">Admin</a-select-option>
+                    </a-select>
+                </a-form-item>
+                <a-form-item v-if="!editingUser" label="Password" required>
+                    <a-input-password v-model:value="form.password" />
+                </a-form-item>
+            </a-form>
+        </a-modal>
+    </AppLayout>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useUserStore } from '@/Stores/userStore';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
+import type { User, UserCreateData } from '@/types/user.js';
+import type { TableColumnType } from 'ant-design-vue';
+
+interface UserForm extends UserCreateData {
+    role: 'user' | 'admin';
+}
+
+interface PaginationConfig {
+    current: number;
+    pageSize: number;
+    total: number;
+}
+
+const userStore = useUserStore();
+const showModal = computed({
+    get: () => showCreateModal.value || !!editingUser.value,
+    set: (value: boolean) => {
+        if (!value) {
+            resetForm();
+        }
+    }
+});
+const showCreateModal = ref<boolean>(false);
+const editingUser = ref<User | null>(null);
+const loading = ref<boolean>(false);
+
+const form = reactive<UserForm>({
+    name: '',
+    email: '',
+    role: 'user',
+    password: ''
+});
+
+const columns: TableColumnType[] = [
+    {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+    },
+    {
+        title: 'Email',
+        dataIndex: 'email',
+        key: 'email',
+    },
+    {
+        title: 'Role',
+        dataIndex: 'role',
+        key: 'role',
+    },
+    {
+        title: 'Created At',
+        dataIndex: 'created_at',
+        key: 'created_at',
+    },
+    {
+        title: 'Action',
+        key: 'action',
+    },
+];
+
+const users = ref<User[]>([]);
+const pagination = reactive<PaginationConfig>({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+});
+
+const fetchUsers = async (): Promise<void> => {
+    loading.value = true;
+    try {
+        users.value = await userStore.fetchUsers();
+    } catch (error) {
+        message.error('Failed to load users');
+    } finally {
+        loading.value = false;
+    }
+};
+
+const handleTableChange = (pag: any): void => {
+    pagination.current = pag.current;
+    pagination.pageSize = pag.pageSize;
+    fetchUsers();
+};
+
+const editUser = (user: User): void => {
+    editingUser.value = user;
+    form.name = user.name;
+    form.email = user.email;
+    form.role = user.role;
+};
+
+const deleteUser = async (id: number): Promise<void> => {
+    try {
+        await userStore.deleteUser(id);
+        message.success('User deleted successfully');
+        fetchUsers();
+    } catch (error) {
+        message.error('Failed to delete user');
+    }
+};
+
+const handleSubmit = async (): Promise<void> => {
+    try {
+        if (editingUser.value) {
+            await userStore.updateUser(editingUser.value.id, {
+                name: form.name,
+                email: form.email,
+                role: form.role
+            });
+            message.success('User updated successfully');
+        } else {
+            await userStore.createUser(form);
+            message.success('User created successfully');
+        }
+        resetForm();
+        fetchUsers();
+    } catch (error) {
+        message.error('Operation failed');
+    }
+};
+
+const resetForm = (): void => {
+    form.name = '';
+    form.email = '';
+    form.role = 'user';
+    form.password = '';
+    editingUser.value = null;
+    showCreateModal.value = false;
+};
+
+onMounted(() => {
+    fetchUsers();
+});
+</script>
+
+
+================================================================================
+File: Welcome.vue
+Size: 1.76 kB
+================================================================================
+
+<template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+        <a-card style="width: 500px; text-align: center">
+            <h1 style="color: #1890ff; margin-bottom: 24px">Welcome to Laravel Starter Kit</h1>
+            <p style="font-size: 16px; margin-bottom: 32px">
+                A modern full-stack application built with Laravel 12, Vue 3, TypeScript, Inertia.js, Pinia, and Ant Design Vue.
+            </p>
+
+            <a-space size="large">
+                <Link v-if="canLogin" :href="route('login')">
+                    <a-button type="primary" size="large">
+                        <LoginOutlined /> Login
+                    </a-button>
+                </Link>
+
+                <Link v-if="canRegister" :href="route('register')">
+                    <a-button size="large">
+                        <UserAddOutlined /> Register
+                    </a-button>
+                </Link>
+            </a-space>
+
+            <a-divider />
+
+            <a-row :gutter="16" style="margin-top: 24px">
+                <a-col :span="12">
+                    <a-statistic title="Laravel Version" :value="laravelVersion" />
+                </a-col>
+                <a-col :span="12">
+                    <a-statistic title="PHP Version" :value="phpVersion" />
+                </a-col>
+            </a-row>
+        </a-card>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+import { LoginOutlined, UserAddOutlined } from '@ant-design/icons-vue';
+
+interface Props {
+    canLogin: boolean;
+    canRegister: boolean;
+    laravelVersion: string;
+    phpVersion: string;
+}
+
+defineProps<Props>();
+</script>
+

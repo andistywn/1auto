@@ -1,11 +1,8 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { h } from 'vue';
+import { MailOutlined, LockOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 
 defineProps({
     status: String,
@@ -16,46 +13,60 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('password.email'));
+    form.post(route('password.email'), {
+        onError: () => {
+            message.error('Failed to send password reset email. Please try again.');
+        }
+    });
 };
 </script>
 
 <template>
     <Head title="Forgot Password" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <h2 style="text-align: center; margin-bottom: 24px">Forgot Password</h2>
 
-        <div class="mb-4 text-sm text-gray-600">
-            Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.
-        </div>
-
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-            {{ status }}
-        </div>
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
+            <div v-if="status" style="margin-bottom: 16px">
+                <a-alert :message="status" type="success" show-icon />
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Email Password Reset Link
-                </PrimaryButton>
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Email"
+                    name="email"
+                    :rules="[{ required: true, type: 'email', message: 'Please input a valid email!' }]"
+                >
+                    <a-input
+                        v-model:value="form.email"
+                        type="email"
+                        size="large"
+                        :prefix="h(MailOutlined)"
+                        placeholder="Email"
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Send Password Reset Link
+                    </a-button>
+                </a-form-item>
+            </a-form>
+
+            <div style="text-align: center; margin-top: 16px">
+                <Link :href="route('login')">Back to Login</Link>
             </div>
-        </form>
-    </AuthenticationCard>
+        </a-card>
+    </div>
 </template>

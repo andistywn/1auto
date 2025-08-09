@@ -1,12 +1,8 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { h } from 'vue';
+import { MailOutlined, LockOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 
 defineProps({
     canResetPassword: Boolean,
@@ -25,6 +21,9 @@ const submit = () => {
         remember: form.remember ? 'on' : '',
     })).post(route('login'), {
         onFinish: () => form.reset('password'),
+        onError: () => {
+            message.error('Login failed. Please check your credentials.');
+        }
     });
 };
 </script>
@@ -32,59 +31,69 @@ const submit = () => {
 <template>
     <Head title="Log in" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <h2 style="text-align: center; margin-bottom: 24px">Login</h2>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-            {{ status }}
-        </div>
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Email"
+                    name="email"
+                    :rules="[{ required: true, message: 'Please input your email!' }]"
+                >
+                    <a-input
+                        v-model:value="form.email"
+                        type="email"
+                        size="large"
+                        :prefix="h(MailOutlined)"
+                        placeholder="Email"
+                    />
+                </a-form-item>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                <a-form-item
+                    label="Password"
+                    name="password"
+                    :rules="[{ required: true, message: 'Please input your password!' }]"
+                >
+                    <a-input-password
+                        v-model:value="form.password"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                        placeholder="Password"
+                    />
+                </a-form-item>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="current-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
+                <a-form-item>
+                    <a-checkbox v-model:checked="form.remember">Remember me</a-checkbox>
+                </a-form-item>
 
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div>
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Log in
+                    </a-button>
+                </a-form-item>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Forgot your password?
+                <div style="text-align: center">
+                    <Link v-if="canResetPassword" :href="route('password.request')">Forgot your password?</Link>
+                </div>
+            </a-form>
+
+            <div style="text-align: center; margin-top: 16px">
+                <span style="color: #666">Don't have an account?</span>
+                <Link :href="route('register')" style="color: #1890ff; margin-left: 8px; font-weight: 500">
+                    Register
                 </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
             </div>
-        </form>
-    </AuthenticationCard>
+        </a-card>
+    </div>
 </template>

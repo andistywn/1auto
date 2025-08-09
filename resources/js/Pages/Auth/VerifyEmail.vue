@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { h } from 'vue';
+import { MailOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 
 const props = defineProps({
     status: String,
@@ -12,51 +12,56 @@ const props = defineProps({
 const form = useForm({});
 
 const submit = () => {
-    form.post(route('verification.send'));
+    form.post(route('verification.send'), {
+        onError: () => {
+            message.error('Failed to send verification email. Please try again.');
+        }
+    });
 };
 
 const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
 </script>
 
 <template>
-    <Head title="Email Verification" />
+    <Head title="Verify Your Email" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
-
-        <div class="mb-4 text-sm text-gray-600">
-            Before continuing, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
-        </div>
-
-        <div v-if="verificationLinkSent" class="mb-4 font-medium text-sm text-green-600">
-            A new verification link has been sent to the email address you provided in your profile settings.
-        </div>
-
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Resend Verification Email
-                </PrimaryButton>
-
-                <div>
-                    <Link
-                        :href="route('profile.show')"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        Edit Profile</Link>
-
-                    <Link
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-2"
-                    >
-                        Log Out
-                    </Link>
-                </div>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <div style="text-align: center">
+                <MailOutlined style="font-size: 48px; color: #1890ff; margin-bottom: 16px" />
+                <h2 style="margin-bottom: 16px">Verify Your Email</h2>
+                <p style="margin-bottom: 24px; color: #666">
+                    Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you?
+                </p>
             </div>
-        </form>
-    </AuthenticationCard>
+
+            <div v-if="verificationLinkSent" style="margin-bottom: 16px">
+                <a-alert
+                    message="A new verification link has been sent to your email address."
+                    type="success"
+                    show-icon
+                />
+            </div>
+
+            <a-form @finish="submit" layout="vertical">
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Resend Verification Email
+                    </a-button>
+                </a-form-item>
+            </a-form>
+
+            <div style="text-align: center; margin-top: 16px">
+                <Link :href="route('logout')" method="post" as="button" style="border: none; background: none; color: #1890ff; cursor: pointer">
+                    Log Out
+                </Link>
+            </div>
+        </a-card>
+    </div>
 </template>

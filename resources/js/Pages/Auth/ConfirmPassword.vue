@@ -1,12 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { h } from 'vue';
+import { LockOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 
 const form = useForm({
     password: '',
@@ -18,46 +15,61 @@ const submit = () => {
     form.post(route('password.confirm'), {
         onFinish: () => {
             form.reset();
-
-            passwordInput.value.focus();
+            message.success('Password confirmed successfully!');
         },
+        onError: () => {
+            message.error('Password confirmation failed. Please try again.');
+        }
     });
 };
 </script>
 
 <template>
-    <Head title="Secure Area" />
+    <Head title="Confirm Password" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
-
-        <div class="mb-4 text-sm text-gray-600">
-            This is a secure area of the application. Please confirm your password before continuing.
-        </div>
-
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    ref="passwordInput"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="current-password"
-                    autofocus
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5">
+        <a-card style="width: 400px">
+            <div style="text-align: center; margin-bottom: 24px">
+                <LockOutlined style="font-size: 48px; color: #1890ff; margin-bottom: 16px" />
+                <h2>Confirm Password</h2>
+                <p style="color: #666">
+                    This is a secure area of the application. Please confirm your password before continuing.
+                </p>
             </div>
 
-            <div class="flex justify-end mt-4">
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Confirm
-                </PrimaryButton>
-            </div>
-        </form>
-    </AuthenticationCard>
+            <a-form
+                :model="form"
+                @finish="submit"
+                layout="vertical"
+            >
+                <a-form-item
+                    label="Password"
+                    name="password"
+                    :rules="[{ required: true, message: 'Please input your password!' }]"
+                >
+                    <a-input-password
+                        ref="passwordInput"
+                        v-model:value="form.password"
+                        size="large"
+                        :prefix="h(LockOutlined)"
+                        placeholder="Password"
+                        autocomplete="current-password"
+                        autofocus
+                    />
+                </a-form-item>
+
+                <a-form-item>
+                    <a-button
+                        type="primary"
+                        html-type="submit"
+                        size="large"
+                        block
+                        :loading="form.processing"
+                    >
+                        Confirm
+                    </a-button>
+                </a-form-item>
+            </a-form>
+        </a-card>
+    </div>
 </template>
